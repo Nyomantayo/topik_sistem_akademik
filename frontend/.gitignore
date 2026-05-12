@@ -1,0 +1,14 @@
+# Dependencies — di-generate ulang dengan `npm install`
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Vite cache
+.vite/

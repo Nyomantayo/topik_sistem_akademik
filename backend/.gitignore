@@ -1,0 +1,12 @@
+# Environment — JANGAN DI-COMMIT (berisi password & secret)
+.env
+.env.local
+
+# Binary hasil build Go
+/krs-backend
+/main
+*.exe
+
+# Test coverage
+*.out
+coverage.html

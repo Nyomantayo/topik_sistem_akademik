@@ -1,0 +1,99 @@
+version: '3.9'
+
+# ─── Network ──────────────────────────────────────────────────────────────────
+networks:
+  krs-network:
+    driver: bridge
+
+# ─── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  mysql-data:
+  redis-data:
+
+# ─── Services ─────────────────────────────────────────────────────────────────
+services:
+
+  # ── MySQL Database ────────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: krs-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: krs_db
+      MYSQL_USER: krs_user
+      MYSQL_PASSWORD: krs_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./backend/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
+    networks:
+      - krs-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Redis Cache ───────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: krs-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - krs-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend API ───────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: krs-backend
+    restart: unless-stopped
+    environment:
+      APP_PORT: 8080
+      APP_ENV: production
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: secret
+      DB_NAME: krs_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASS: ""
+      JWT_SECRET: krs-akademik-super-secret-jwt-key-production-2024
+      JWT_EXPIRY: 24
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - krs-network
+
+  # ── Frontend ──────────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: krs-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - krs-network
