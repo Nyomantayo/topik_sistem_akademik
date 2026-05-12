@@ -197,6 +197,8 @@ updated_at
 - MySQL 8.0+
 - Redis 7+ (atau Docker)
 
+> **Auto-Migration:** Backend secara otomatis membuat tabel dan seed data saat pertama kali dijalankan. Tidak perlu menjalankan file SQL secara manual.
+
 ---
 
 ### Opsi A — Docker Compose (Paling Mudah)
@@ -205,7 +207,7 @@ Docker Compose akan menjalankan MySQL, Redis, Backend, dan Frontend sekaligus.
 
 ```bash
 # Clone / buka folder project
-cd topsus_claude_krs
+cd topik_sistem_akademik
 
 # Build dan jalankan semua service
 docker compose up -d --build
@@ -249,6 +251,8 @@ source backend/migrations/001_init.sql;
 ```
 
 > Jika menggunakan **Laragon** (Windows), MySQL berjalan tanpa password untuk user `root`.
+>
+> **Alternatif:** Jika menjalankan backend via `go run`, migrasi akan otomatis dijalankan saat startup sehingga langkah ini bersifat opsional.
 
 #### 2. Jalankan Redis
 
@@ -296,20 +300,64 @@ Aplikasi frontend berjalan di: `http://localhost:5173`
 
 ---
 
-## Konfigurasi (`backend/.env`)
+### Opsi C — Deploy ke Cloud (Railway + Vercel)
+
+Backend di-deploy ke **Railway**, frontend di-deploy ke **Vercel**.
+
+#### 1. Deploy Backend ke Railway
+
+1. Push project ke **GitHub**
+2. Buka [railway.com](https://railway.com) → **New Project** → pilih repo GitHub
+3. Set **Root Directory** ke `backend`
+4. Tambahkan plugin **MySQL** dan **Redis** di project Railway
+5. Di service backend, buka tab **Variables** dan tambahkan:
+
+| Variable | Value |
+|----------|-------|
+| `MYSQL_URL` | `${{MySQL.MYSQL_URL}}` |
+| `REDIS_URL` | `${{Redis.REDIS_URL}}` |
+| `JWT_SECRET` | *(string acak yang kuat)* |
+| `CORS_ORIGIN` | `https://nama-frontend.vercel.app` |
+| `APP_ENV` | `production` |
+
+> `PORT` otomatis disediakan Railway. `MYSQL_URL` dan `REDIS_URL` akan di-parse otomatis oleh backend.
+
+6. Di tab **Settings** → **Networking** → klik **Generate Domain**
+7. Database otomatis ter-migrate saat backend pertama kali start
+
+#### 2. Deploy Frontend ke Vercel
+
+1. Buka [vercel.com](https://vercel.com) → **New Project** → pilih repo GitHub
+2. Set **Root Directory** ke `frontend`
+3. Framework Preset: **Vite**
+4. Di tab **Settings** → **Environment Variables**, tambahkan:
+
+| Variable | Value |
+|----------|-------|
+| `VITE_API_URL` | `https://nama-backend.up.railway.app/api` |
+
+> **Penting:** Pastikan URL diawali dengan `https://` dan diakhiri dengan `/api`.
+
+5. Deploy dan tunggu build selesai
+
+---
+
+## Konfigurasi
+
+### Environment Variables — Backend (`backend/.env`)
 
 ```env
 APP_PORT=8080
 APP_ENV=development
 
-# Koneksi MySQL
+# Koneksi MySQL (untuk development lokal)
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASS=               # kosongkan jika Laragon tanpa password
 DB_NAME=krs_db
 
-# Koneksi Redis
+# Koneksi Redis (untuk development lokal)
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASS=            # kosongkan jika Redis tanpa password
@@ -318,22 +366,42 @@ REDIS_PASS=            # kosongkan jika Redis tanpa password
 JWT_SECRET=ganti-ini-dengan-string-acak-yang-kuat
 JWT_EXPIRY=24          # dalam jam
 
-# CORS (sesuaikan dengan URL frontend)
+# CORS (sesuaikan dengan URL frontend, pisahkan dengan koma untuk multiple origins)
 CORS_ORIGIN=http://localhost:5173
 ```
+
+### Auto-Detect (Railway / Cloud)
+
+Backend otomatis mendeteksi variabel dari platform cloud:
+
+| Variabel Platform | Pengganti |
+|-------------------|-----------|
+| `MYSQL_URL` | `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME` |
+| `REDIS_URL` | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASS` |
+| `PORT` | `APP_PORT` |
+
+Jika `MYSQL_URL` atau `REDIS_URL` tersedia, variabel individual tidak perlu di-set.
+
+### Environment Variables — Frontend
+
+| Variable | Default | Keterangan |
+|----------|---------|------------|
+| `VITE_API_URL` | `/api` | URL lengkap backend API (contoh: `https://backend.up.railway.app/api`) |
 
 ---
 
 ## Akun Demo
 
-Setelah migrasi, akun berikut tersedia untuk pengujian:
+Akun berikut otomatis tersedia setelah backend pertama kali dijalankan (auto-migration):
 
 | Role       | Email                         | Password       |
 |------------|-------------------------------|----------------|
 | Admin      | `admin2@krs.ac.id`            | `Admin@123`    |
-| Mahasiswa  | `mahasiswa@krs.ac.id`         | `Mahasiswa@123`|
 | Dosen      | `dosen@krs.ac.id`             | `Dosen@123`    |
+| Mahasiswa  | `mahasiswa@krs.ac.id`         | `Mahasiswa@123`|
 | Tamu       | *(klik tombol "Masuk sebagai Tamu" di halaman login)* | — |
+
+> Akun dosen terhubung ke record dosen **Dr. Budi Santoso, M.Kom**, dan akun mahasiswa terhubung ke record mahasiswa **Andi Pratama**.
 
 Untuk membuat akun admin baru via API:
 
@@ -399,8 +467,10 @@ topsus_claude_krs/
 │   │   ├── jwt.go                    # GenerateToken, ParseToken
 │   │   └── hash.go                   # HashPassword, CheckPassword
 │   ├── migrations/
-│   │   └── 001_init.sql              # Schema + data seed awal
+│   │   ├── 001_init.sql              # Schema + data seed awal
+│   │   └── migrations.go             # Auto-migration (embed SQL + run on startup)
 │   ├── Dockerfile
+│   ├── railway.json                  # Konfigurasi deploy Railway
 │   ├── go.mod
 │   ├── go.sum
 │   ├── .env
@@ -440,6 +510,7 @@ topsus_claude_krs/
 │   │       └── ProfilePage.jsx       # Edit profil + data akademik (mahasiswa)
 │   ├── tailwind.config.js
 │   ├── vite.config.js
+│   ├── vercel.json                   # SPA rewrite rule untuk Vercel
 │   ├── Dockerfile
 │   └── nginx.conf
 │
