@@ -15,6 +15,7 @@ import (
 	"topsus-krs/internal/repository"
 	"topsus-krs/internal/routes"
 	"topsus-krs/internal/service"
+	"topsus-krs/migrations"
 	"topsus-krs/pkg/cache"
 )
 
@@ -25,6 +26,9 @@ func main() {
 	// Inisialisasi koneksi database
 	db := config.InitDB(cfg)
 	defer db.Close()
+
+	// Auto-migrate database (create tables + seed data jika belum ada)
+	migrations.RunMigration(db)
 
 	// Inisialisasi koneksi Redis
 	redisClient := config.InitRedis(cfg)

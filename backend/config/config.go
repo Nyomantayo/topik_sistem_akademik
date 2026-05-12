@@ -3,8 +3,10 @@ package config
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -34,22 +36,66 @@ func LoadConfig() *Config {
 		log.Println("No .env file found, using system environment variables")
 	}
 
+	// Railway menyediakan variabel PORT, gunakan sebagai fallback
+	appPort := getEnv("APP_PORT", "")
+	if appPort == "" {
+		appPort = getEnv("PORT", "8080")
+	}
+
 	jwtExpiry, err := strconv.Atoi(getEnv("JWT_EXPIRY", "24"))
 	if err != nil {
 		jwtExpiry = 24
 	}
 
+	// Default database config
+	dbHost := getEnv("DB_HOST", "localhost")
+	dbPort := getEnv("DB_PORT", "3306")
+	dbUser := getEnv("DB_USER", "root")
+	dbPass := getEnv("DB_PASS", "")
+	dbName := getEnv("DB_NAME", "krs_db")
+
+	// Railway menyediakan MYSQL_URL — parse otomatis jika tersedia
+	if mysqlURL := getEnv("MYSQL_URL", ""); mysqlURL != "" {
+		if u, parseErr := url.Parse(mysqlURL); parseErr == nil {
+			dbHost = u.Hostname()
+			if p := u.Port(); p != "" {
+				dbPort = p
+			}
+			dbUser = u.User.Username()
+			dbPass, _ = u.User.Password()
+			dbName = strings.TrimPrefix(u.Path, "/")
+			log.Println("📡 Using MYSQL_URL from Railway")
+		}
+	}
+
+	// Default Redis config
+	redisHost := getEnv("REDIS_HOST", "localhost")
+	redisPort := getEnv("REDIS_PORT", "6379")
+	redisPass := getEnv("REDIS_PASS", "")
+
+	// Railway menyediakan REDIS_URL — parse otomatis jika tersedia
+	if redisURL := getEnv("REDIS_URL", ""); redisURL != "" {
+		if u, parseErr := url.Parse(redisURL); parseErr == nil {
+			redisHost = u.Hostname()
+			if p := u.Port(); p != "" {
+				redisPort = p
+			}
+			redisPass, _ = u.User.Password()
+			log.Println("📡 Using REDIS_URL from Railway")
+		}
+	}
+
 	return &Config{
-		AppPort:    getEnv("APP_PORT", "8080"),
+		AppPort:    appPort,
 		AppEnv:     getEnv("APP_ENV", "development"),
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBPort:     getEnv("DB_PORT", "3306"),
-		DBUser:     getEnv("DB_USER", "root"),
-		DBPass:     getEnv("DB_PASS", ""),
-		DBName:     getEnv("DB_NAME", "krs_db"),
-		RedisHost:  getEnv("REDIS_HOST", "localhost"),
-		RedisPort:  getEnv("REDIS_PORT", "6379"),
-		RedisPass:  getEnv("REDIS_PASS", ""),
+		DBHost:     dbHost,
+		DBPort:     dbPort,
+		DBUser:     dbUser,
+		DBPass:     dbPass,
+		DBName:     dbName,
+		RedisHost:  redisHost,
+		RedisPort:  redisPort,
+		RedisPass:  redisPass,
 		JWTSecret:  getEnv("JWT_SECRET", "default-secret"),
 		JWTExpiry:  jwtExpiry,
 		CORSOrigin: getEnv("CORS_ORIGIN", "http://localhost:5173"),

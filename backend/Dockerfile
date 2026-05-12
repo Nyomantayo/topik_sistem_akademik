@@ -23,7 +23,6 @@ WORKDIR /app
 
 # Copy binary dari stage builder
 COPY --from=builder /app/krs-backend .
-COPY --from=builder /app/.env .
 
 EXPOSE 8080
 

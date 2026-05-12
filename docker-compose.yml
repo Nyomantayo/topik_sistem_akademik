@@ -24,7 +24,7 @@ services:
       MYSQL_USER: krs_user
       MYSQL_PASSWORD: krs_pass
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./backend/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql

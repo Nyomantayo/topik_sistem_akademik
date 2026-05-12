@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"strings"
+
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 
@@ -20,8 +22,15 @@ func Setup(e *echo.Echo, h *Handlers, jwtSecret, corsOrigin string) {
 	// Global middleware
 	e.Use(echoMiddleware.Logger())
 	e.Use(echoMiddleware.Recover())
+
+	// Support multiple CORS origins (dipisahkan koma)
+	origins := strings.Split(corsOrigin, ",")
+	for i := range origins {
+		origins[i] = strings.TrimSpace(origins[i])
+	}
+
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins: []string{corsOrigin},
+		AllowOrigins: origins,
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders: []string{
 			echo.HeaderOrigin,
