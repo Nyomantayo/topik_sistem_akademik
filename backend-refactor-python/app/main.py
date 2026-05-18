@@ -63,7 +63,13 @@ def on_startup():
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.get("/health", tags=["Health"])
 def health():
-    return {"status": "ok", "service": "krs-akademik-python"}
+    import bcrypt
+    return {
+        "status": "ok",
+        "service": "krs-akademik-python",
+        "build": "v3-direct-bcrypt",
+        "bcrypt_version": bcrypt.__version__,
+    }
 
 
 # ── API routes ────────────────────────────────────────────────────────────────
