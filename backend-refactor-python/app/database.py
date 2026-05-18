@@ -1,5 +1,6 @@
 import pathlib
 from typing import Generator
+from urllib.parse import quote_plus
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
@@ -7,8 +8,11 @@ from sqlalchemy.orm import sessionmaker, Session
 from .config import settings
 
 # ── SQLAlchemy engine ─────────────────────────────────────────────────────────
+# URL-encode the password to handle special chars like @ % + etc.
+_db_pass_encoded = quote_plus(settings.db_pass)
+
 DATABASE_URL = (
-    f"mysql+pymysql://{settings.db_user}:{settings.db_pass}"
+    f"mysql+pymysql://{settings.db_user}:{_db_pass_encoded}"
     f"@{settings.db_host}:{settings.db_port}/{settings.db_name}"
     "?charset=utf8mb4"
 )
