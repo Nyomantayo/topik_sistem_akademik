@@ -15,10 +15,16 @@ DATABASE_URL = (
 
 engine = create_engine(
     DATABASE_URL,
-    pool_size=25,
-    max_overflow=0,
+    pool_size=10,
+    max_overflow=5,
     pool_recycle=300,
     pool_pre_ping=True,
+    pool_timeout=30,
+    connect_args={
+        "connect_timeout": 15,
+        "read_timeout":    30,
+        "write_timeout":   30,
+    },
     echo=False,
 )
 

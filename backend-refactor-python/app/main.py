@@ -42,11 +42,21 @@ async def generic_exception_handler(request: Request, exc: Exception):
 # ── Startup event ─────────────────────────────────────────────────────────────
 @app.on_event("startup")
 def on_startup():
+    import time
     logger.info("🚀 KRS Akademik API (Python/FastAPI) starting...")
-    try:
-        run_migration()
-    except Exception as e:
-        logger.error(f"Migration error: {e}")
+
+    # Retry migration up to 5 times (DB might not be immediately reachable)
+    for attempt in range(1, 6):
+        try:
+            run_migration()
+            break
+        except Exception as e:
+            logger.warning(f"Migration attempt {attempt}/5 failed: {e}")
+            if attempt < 5:
+                time.sleep(5)
+            else:
+                logger.error("All migration attempts failed — DB may be unavailable at startup")
+
     logger.info(f"✅ Server ready — env={settings.app_env}, port={settings.app_port}")
 
 
