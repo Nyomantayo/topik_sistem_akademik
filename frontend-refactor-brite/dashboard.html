@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard — KRS Akademik</title>
+  <link rel="stylesheet" href="https://bootswatch.com/5/brite/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css" />
+  <style>
+    body { background: #f4f6fb; }
+    .avatar-sm { width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff; }
+    .stat-icon  { width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .progress   { height:8px; }
+    .akademik-icon { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .dosen-pa-avatar { width:52px;height:52px;border-radius:12px;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="dashboard.html">
+      <i class="fas fa-graduation-cap me-2"></i>KRS Akademik
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item no-guest">
+          <a class="nav-link" href="dashboard.html" data-page="dashboard.html"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="mahasiswa.html" data-page="mahasiswa.html"><i class="fas fa-user-graduate me-1"></i>Mahasiswa</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="dosen.html" data-page="dosen.html"><i class="fas fa-chalkboard-teacher me-1"></i>Dosen</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+            <span class="avatar-sm"><span class="user-avatar-initials">A</span></span>
+            <span class="d-none d-md-inline user-display-name">User</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+            <li><h6 class="dropdown-header user-display-name fw-bold"></h6></li>
+            <li><span class="dropdown-item-text text-muted small user-display-role"></span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="no-guest"><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2 text-muted"></i>Profil Saya</a></li>
+            <li><hr class="dropdown-divider no-guest"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="Auth.logout();return false;"><i class="fas fa-sign-out-alt me-2"></i>Keluar</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container-fluid py-4">
+
+  <!-- Page Header -->
+  <div class="mb-4">
+    <h4 class="fw-bold mb-0">Dashboard</h4>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0 small"><li class="breadcrumb-item active">Dashboard</li></ol></nav>
+  </div>
+
+  <!-- Kartu Akademik Mahasiswa -->
+  <div id="rowAkademik" style="display:none;" class="mb-4">
+    <div class="card border-0 shadow-sm rounded-4 border-start border-primary border-4">
+      <div class="card-header bg-transparent border-0 pt-3 pb-0">
+        <h6 class="fw-bold mb-0"><i class="fas fa-id-card me-2 text-primary"></i>Kartu Akademik Saya</h6>
+      </div>
+      <div class="card-body" id="akademikBody">
+        <div class="text-center py-3"><div class="spinner-border text-primary"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="row g-4 mb-4" id="statCards">
+    <div class="col-12 text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Memuat statistik...</p></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-4" id="chartSection" style="display:none;">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-transparent border-0 pt-3">
+          <h6 class="fw-bold mb-0"><i class="fas fa-user-graduate me-2 text-primary"></i>Mahasiswa per Jurusan</h6>
+        </div>
+        <div class="card-body" id="jurusanChart"><p class="text-muted text-center py-4">Belum ada data</p></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-transparent border-0 pt-3">
+          <h6 class="fw-bold mb-0"><i class="fas fa-chalkboard-teacher me-2 text-success"></i>Dosen per Program Studi</h6>
+        </div>
+        <div class="card-body" id="prodiChart"><p class="text-muted text-center py-4">Belum ada data</p></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="text-center py-3 text-muted small border-top mt-4">
+  © 2025 KRS Akademik &middot; Universitas Udayana
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

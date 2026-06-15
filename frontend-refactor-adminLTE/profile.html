@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profil — KRS Akademik</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" />
+  <style>
+    .user-avatar-circle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #2563eb; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .9rem;
+    }
+    .profile-avatar {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: #2563eb; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; font-weight: 700; flex-shrink: 0;
+    }
+    .akademik-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: #f8fafc; border-radius: 8px; padding: 12px;
+    }
+    .akademik-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: #dbeafe; color: #2563eb;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+          <i class="fas fa-user-circle mr-1"></i>
+          <span class="user-display-name">User</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a href="profile.html" class="dropdown-item">
+            <i class="fas fa-user mr-2"></i> Profil Saya
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item text-danger" onclick="Auth.logout(); return false;">
+            <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+          </a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="dashboard.html" class="brand-link">
+      <i class="fas fa-graduation-cap brand-image ml-3" style="color:#93c5fd;font-size:1.4rem;"></i>
+      <span class="brand-text font-weight-bold ml-2">KRS Akademik</span>
+    </a>
+    <div class="sidebar">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <div class="user-avatar-circle ml-1">
+            <span class="user-avatar-initials">A</span>
+          </div>
+        </div>
+        <div class="info">
+          <a href="profile.html" class="d-block user-display-name"></a>
+          <small class="text-muted user-display-role"></small>
+        </div>
+      </div>
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+          <li class="nav-item no-guest">
+            <a href="dashboard.html" class="nav-link" data-page="dashboard.html">
+              <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="mahasiswa.html" class="nav-link" data-page="mahasiswa.html">
+              <i class="nav-icon fas fa-user-graduate"></i><p>Mahasiswa</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="dosen.html" class="nav-link" data-page="dosen.html">
+              <i class="nav-icon fas fa-chalkboard-teacher"></i><p>Dosen</p>
+            </a>
+          </li>
+          <li class="nav-item no-guest">
+            <a href="profile.html" class="nav-link" data-page="profile.html">
+              <i class="nav-icon fas fa-user-cog"></i><p>Profil Saya</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6"><h1 class="m-0">Profil Saya</h1></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+              <li class="breadcrumb-item active">Profil</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-7">
+
+            <!-- Kartu Info Akun -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-user mr-2 text-primary"></i>Informasi Akun</h3>
+              </div>
+              <div class="card-body">
+                <!-- Avatar + identitas -->
+                <div class="d-flex align-items-center mb-4">
+                  <div class="profile-avatar mr-3" id="profileAvatar">A</div>
+                  <div>
+                    <h4 class="mb-0 user-display-name"></h4>
+                    <p class="text-muted mb-1" id="profileEmail">—</p>
+                    <span class="badge badge-primary" id="profileRole">—</span>
+                  </div>
+                </div>
+
+                <form id="formProfile">
+                  <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" class="form-control" id="fName" placeholder="Nama lengkap" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" id="fEmail" readonly
+                      style="background:#f8fafc;cursor:not-allowed;" />
+                    <small class="text-muted">Email tidak dapat diubah</small>
+                  </div>
+                  <button type="submit" class="btn btn-primary" id="btnSaveProfile">
+                    <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Kartu Ubah Password -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-lock mr-2 text-warning"></i>Ubah Password</h3>
+              </div>
+              <div class="card-body">
+                <form id="formPassword">
+                  <div class="form-group">
+                    <label>Password Lama</label>
+                    <input type="password" class="form-control" id="fOldPass" placeholder="••••••••" />
+                    <small class="text-danger d-none" id="errOldPass"></small>
+                  </div>
+                  <div class="form-group">
+                    <label>Password Baru</label>
+                    <input type="password" class="form-control" id="fNewPass" placeholder="Min. 8 karakter" />
+                    <small class="text-danger d-none" id="errNewPass"></small>
+                  </div>
+                  <div class="form-group">
+                    <label>Konfirmasi Password Baru</label>
+                    <input type="password" class="form-control" id="fConfirmPass" placeholder="Ulangi password baru" />
+                    <small class="text-danger d-none" id="errConfirmPass"></small>
+                  </div>
+                  <button type="submit" class="btn btn-warning" id="btnSavePass">
+                    <i class="fas fa-key mr-1"></i> Ubah Password
+                  </button>
+                </form>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Kartu Data Akademik (hanya mahasiswa) -->
+          <div class="col-lg-5" id="cardAkademik" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-book-open mr-2 text-info"></i>Data Akademik</h3>
+              </div>
+              <div class="card-body" id="akademikBody">
+                <div class="text-center py-4">
+                  <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="main-footer">
+    <div class="float-right d-none d-sm-inline text-muted">v1.0.0</div>
+    <strong>© 2025 KRS Akademik</strong> &middot; Universitas Udayana
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/profile.js"></script>
+</body>
+</html>

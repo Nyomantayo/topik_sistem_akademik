@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dosen — KRS Akademik</title>
+  <link rel="stylesheet" href="https://bootswatch.com/5/brite/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/css/iziToast.min.css" />
+  <style>
+    body { background: #f4f6fb; }
+    .avatar-sm { width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.25);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff; }
+    .nidn-badge { font-family:monospace;background:#f1f5f9;padding:2px 7px;border-radius:4px;font-size:.82rem;border:1px solid #e2e8f0; }
+    .badge-prodi { background:#dcfce7;color:#15803d;padding:2px 9px;border-radius:12px;font-size:.75rem;font-weight:600; }
+    .bimbingan-avatar { width:38px;height:38px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0; }
+    table td, table th { vertical-align:middle; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="dashboard.html"><i class="fas fa-graduation-cap me-2"></i>KRS Akademik</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item no-guest"><a class="nav-link" href="dashboard.html" data-page="dashboard.html"><i class="fas fa-tachometer-alt me-1"></i>Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="mahasiswa.html" data-page="mahasiswa.html"><i class="fas fa-user-graduate me-1"></i>Mahasiswa</a></li>
+        <li class="nav-item"><a class="nav-link" href="dosen.html" data-page="dosen.html"><i class="fas fa-chalkboard-teacher me-1"></i>Dosen</a></li>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+            <span class="avatar-sm"><span class="user-avatar-initials">A</span></span>
+            <span class="d-none d-md-inline user-display-name">User</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+            <li><h6 class="dropdown-header user-display-name fw-bold"></h6></li>
+            <li><span class="dropdown-item-text text-muted small user-display-role"></span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="no-guest"><a class="dropdown-item" href="profile.html"><i class="fas fa-user me-2 text-muted"></i>Profil Saya</a></li>
+            <li><hr class="dropdown-divider no-guest"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="Auth.logout();return false;"><i class="fas fa-sign-out-alt me-2"></i>Keluar</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+      <h4 class="fw-bold mb-0">Dosen</h4>
+      <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+        <li class="breadcrumb-item active">Dosen</li>
+      </ol></nav>
+    </div>
+    <button class="btn btn-primary admin-only" id="btnTambah"><i class="fas fa-plus me-1"></i>Tambah Dosen</button>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-transparent border-0 pt-3 pb-0 d-flex align-items-center gap-2">
+      <h6 class="fw-bold mb-0">Daftar Dosen</h6>
+      <span class="badge bg-success rounded-pill" id="totalBadge">0</span>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+            <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Cari nama, NIDN, prodi..." />
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-dark">
+            <tr><th>NIDN</th><th>Nama</th><th class="d-none d-md-table-cell">Email</th><th>Program Studi</th><th class="text-center">Aksi</th></tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="5" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Memuat...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="paginationWrap" class="d-flex justify-content-between align-items-center mt-2" style="display:none!important;">
+        <small class="text-muted" id="paginationInfo"></small>
+        <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="text-center py-3 text-muted small border-top mt-4">© 2025 KRS Akademik &middot; Universitas Udayana</footer>
+
+<!-- Modal Form -->
+<div class="modal fade" id="modalForm" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title" id="modalFormTitle">Tambah Dosen</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="formDosen">
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label fw-semibold">NIDN <span class="text-danger">*</span></label><input type="text" class="form-control" id="fNidn" placeholder="0123456701" required /></div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Nama Lengkap <span class="text-danger">*</span></label><input type="text" class="form-control" id="fNama" placeholder="Dr. Nama Dosen" required /></div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Email <span class="text-danger">*</span></label><input type="email" class="form-control" id="fEmail" placeholder="dosen@email.com" required /></div>
+            <div class="col-md-6"><label class="form-label fw-semibold">Program Studi <span class="text-danger">*</span></label><input type="text" class="form-control" id="fProdi" placeholder="Teknik Informatika" required /></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnSimpan"><i class="fas fa-save me-1"></i>Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Mahasiswa Bimbingan -->
+<div class="modal fade" id="modalBimbingan" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header bg-info text-white rounded-top-4">
+        <h5 class="modal-title" id="bimbinganTitle">Mahasiswa Bimbingan</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted small" id="bimbinganInfo"></p>
+        <div id="bimbinganBody"><div class="text-center py-4"><div class="spinner-border text-info"></div></div></div>
+        <ul class="pagination pagination-sm justify-content-center mt-3 mb-0" id="bimbinganPagination"></ul>
+      </div>
+      <div class="modal-footer border-0"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Hapus -->
+<div class="modal fade" id="modalHapus" tabindex="-1">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header bg-danger text-white rounded-top-4">
+        <h5 class="modal-title">Hapus Dosen</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4"><p id="hapusMsg" class="mb-0"></p></div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnKonfirmasiHapus"><i class="fas fa-trash me-1"></i>Hapus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/izitoast@1.4.0/dist/js/iziToast.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dosen.js"></script>
+</body>
+</html>

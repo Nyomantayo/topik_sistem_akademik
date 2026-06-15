@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0;url=login.html" />
+  <title>KRS Akademik</title>
+</head>
+<body>
+  <script>
+    const token = localStorage.getItem('krs_token');
+    const user  = (() => { try { return JSON.parse(localStorage.getItem('krs_user')); } catch { return null; } })();
+    if (token) {
+      window.location.href = user?.role === 'guest' ? 'mahasiswa.html' : 'dashboard.html';
+    } else {
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

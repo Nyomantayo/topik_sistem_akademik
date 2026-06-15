@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daftar — KRS Akademik</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" />
+  <style>
+    .register-page { background: linear-gradient(135deg, #1e3a5f 0%, #3730a3 100%); }
+    .login-box     { width: 420px; }
+    .login-logo a  { color: #fff; font-size: 1.6rem; font-weight: 700; }
+    .login-logo a b { color: #a5b4fc; }
+    .btn-primary   { background-color: #4f46e5; border-color: #4f46e5; }
+    .btn-primary:hover { background-color: #4338ca; border-color: #4338ca; }
+  </style>
+</head>
+<body class="hold-transition register-page">
+
+<div class="login-box">
+  <div class="login-logo">
+    <a href="login.html"><b>KRS</b> Akademik</a>
+    <p class="text-white-50 text-sm mt-1 mb-0">Buat akun baru untuk bergabung</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Isi data berikut untuk mendaftar</p>
+
+      <form id="registerForm">
+        <!-- Nama -->
+        <div class="input-group mb-1">
+          <input type="text" id="name" class="form-control" placeholder="Nama Lengkap" autocomplete="name" />
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-user"></span></div>
+          </div>
+        </div>
+        <small id="nameError" class="text-danger d-none mb-2 d-block"></small>
+
+        <!-- Email -->
+        <div class="input-group mb-1 mt-2">
+          <input type="email" id="email" class="form-control" placeholder="Email" autocomplete="email" />
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-envelope"></span></div>
+          </div>
+        </div>
+        <small id="emailError" class="text-danger d-none mb-2 d-block"></small>
+
+        <!-- Password -->
+        <div class="input-group mb-1 mt-2">
+          <input type="password" id="password" class="form-control" placeholder="Password (min. 8 karakter)" autocomplete="new-password" />
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock" id="togglePassIcon" style="cursor:pointer;" title="Tampilkan/sembunyikan"></span>
+            </div>
+          </div>
+        </div>
+        <small id="passwordError" class="text-danger d-none mb-2 d-block"></small>
+
+        <!-- Role -->
+        <div class="input-group mb-3 mt-2">
+          <select id="role" class="form-control">
+            <option value="mahasiswa">Mahasiswa</option>
+            <option value="dosen">Dosen</option>
+          </select>
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-id-badge"></span></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-block" id="btnRegister">
+              <i class="fas fa-user-plus mr-1"></i> Daftar Sekarang
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <p class="mb-0 mt-3 text-center">
+        Sudah punya akun? <a href="login.html">Masuk di sini</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  toastr.options = { closeButton: true, progressBar: true, positionClass: 'toast-top-right', timeOut: 3000 };
+
+  Auth.requireNoAuth();
+
+  document.getElementById('togglePassIcon').addEventListener('click', function () {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    this.classList.toggle('fa-lock');
+    this.classList.toggle('fa-lock-open');
+  });
+
+  const showError = (id, msg) => {
+    const el = document.getElementById(id);
+    if (msg) { el.textContent = msg; el.classList.remove('d-none'); }
+    else      { el.textContent = ''; el.classList.add('d-none'); }
+  };
+
+  const setLoading = (on) => {
+    const btn = document.getElementById('btnRegister');
+    btn.disabled = on;
+    btn.innerHTML = on
+      ? '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...'
+      : '<i class="fas fa-user-plus mr-1"></i> Daftar Sekarang';
+  };
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name     = document.getElementById('name').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const role     = document.getElementById('role').value;
+
+    ['nameError','emailError','passwordError'].forEach(id => showError(id, ''));
+
+    let valid = true;
+    if (!name)              { showError('nameError', 'Nama wajib diisi'); valid = false; }
+    if (!email)             { showError('emailError', 'Email wajib diisi'); valid = false; }
+    if (!password)          { showError('passwordError', 'Password wajib diisi'); valid = false; }
+    else if (password.length < 8) { showError('passwordError', 'Password minimal 8 karakter'); valid = false; }
+    if (!valid) return;
+
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/register', { name, email, password, role });
+      Auth.setSession(res.data.token, res.data.user);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      toastr.error(err.message || 'Pendaftaran gagal');
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+</body>
+</html>

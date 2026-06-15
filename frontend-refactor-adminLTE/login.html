@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — KRS Akademik</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" />
+  <style>
+    .login-page { background: linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%); }
+    .login-box  { width: 400px; }
+    .login-logo a { color: #fff; font-size: 1.6rem; font-weight: 700; }
+    .login-logo a b { color: #93c5fd; }
+    .btn-primary { background-color: #2563eb; border-color: #2563eb; }
+    .btn-primary:hover { background-color: #1d4ed8; border-color: #1d4ed8; }
+    .demo-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; }
+  </style>
+</head>
+<body class="hold-transition login-page">
+
+<div class="login-box">
+  <div class="login-logo">
+    <a href="login.html"><b>KRS</b> Akademik</a>
+    <p class="text-white-50 text-sm mt-1 mb-0">Sistem Informasi Akademik · Universitas Udayana</p>
+  </div>
+
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Masuk ke akun Anda</p>
+
+      <form id="loginForm">
+        <div class="input-group mb-1">
+          <input type="email" id="email" class="form-control" placeholder="Email" autocomplete="email" />
+          <div class="input-group-append">
+            <div class="input-group-text"><span class="fas fa-envelope"></span></div>
+          </div>
+        </div>
+        <small id="emailError" class="text-danger d-none mb-2 d-block"></small>
+
+        <div class="input-group mb-1 mt-2">
+          <input type="password" id="password" class="form-control" placeholder="Password" autocomplete="current-password" />
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock" id="togglePassIcon" style="cursor:pointer;" title="Tampilkan/sembunyikan"></span>
+            </div>
+          </div>
+        </div>
+        <small id="passwordError" class="text-danger d-none mb-2 d-block"></small>
+
+        <div class="row mt-3">
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
+              <i class="fas fa-sign-in-alt mr-1"></i> Masuk
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="social-auth-links text-center mt-2 mb-3">
+        <p class="text-muted">— atau —</p>
+        <button id="btnGuest" class="btn btn-outline-secondary btn-block">
+          <i class="fas fa-user-secret mr-1"></i> Masuk sebagai Tamu
+        </button>
+        <small class="text-muted">Tamu hanya dapat melihat daftar Dosen &amp; Mahasiswa</small>
+      </div>
+
+      <p class="mb-1 text-center">
+        Belum punya akun? <a href="register.html">Daftar sekarang</a>
+      </p>
+
+      <div class="demo-box p-3 mt-3">
+        <p class="font-weight-bold text-primary mb-1" style="font-size:.82rem;">Akun Demo</p>
+        <p class="mb-0" style="font-size:.78rem;color:#1d4ed8;">Admin &nbsp;— admin2@krs.ac.id · Admin@123</p>
+        <p class="mb-0" style="font-size:.78rem;color:#1d4ed8;">Dosen &nbsp;— dosen@krs.ac.id · Dosen@123</p>
+        <p class="mb-0" style="font-size:.78rem;color:#1d4ed8;">Mhs &nbsp;&nbsp;&nbsp;— mahasiswa@krs.ac.id · Mahasiswa@123</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  toastr.options = { closeButton: true, progressBar: true, positionClass: 'toast-top-right', timeOut: 3000 };
+
+  // Redirect kalau sudah login
+  Auth.requireNoAuth();
+
+  // Toggle show/hide password
+  document.getElementById('togglePassIcon').addEventListener('click', function () {
+    const inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    this.classList.toggle('fa-lock');
+    this.classList.toggle('fa-lock-open');
+  });
+
+  const setLoading = (on) => {
+    const btn = document.getElementById('btnLogin');
+    const guest = document.getElementById('btnGuest');
+    btn.disabled = on;
+    guest.disabled = on;
+    btn.innerHTML = on
+      ? '<i class="fas fa-spinner fa-spin mr-1"></i> Memproses...'
+      : '<i class="fas fa-sign-in-alt mr-1"></i> Masuk';
+  };
+
+  const showError = (id, msg) => {
+    const el = document.getElementById(id);
+    if (msg) { el.textContent = msg; el.classList.remove('d-none'); }
+    else      { el.textContent = ''; el.classList.add('d-none'); }
+  };
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    showError('emailError', '');
+    showError('passwordError', '');
+
+    let valid = true;
+    if (!email)    { showError('emailError', 'Email wajib diisi'); valid = false; }
+    if (!password) { showError('passwordError', 'Password wajib diisi'); valid = false; }
+    if (!valid) return;
+
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      Auth.setSession(res.data.token, res.data.user);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      toastr.error(err.message || 'Login gagal');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  document.getElementById('btnGuest').addEventListener('click', async () => {
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/guest');
+      Auth.setSession(res.data.token, res.data.user);
+      window.location.href = 'mahasiswa.html';
+    } catch (err) {
+      toastr.error(err.message || 'Gagal masuk sebagai tamu');
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+</body>
+</html>

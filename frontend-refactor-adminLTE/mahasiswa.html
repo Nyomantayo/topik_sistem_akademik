@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mahasiswa — KRS Akademik</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/css/adminlte.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" />
+  <style>
+    .user-avatar-circle {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: #2563eb; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .9rem;
+    }
+    .badge-semester { background-color: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 12px; font-size: .75rem; }
+    .nim-badge { font-family: monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: .82rem; }
+    table th { white-space: nowrap; }
+    .table td { vertical-align: middle; }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+          <i class="fas fa-user-circle mr-1"></i>
+          <span class="user-display-name">User</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a href="profile.html" class="dropdown-item no-guest">
+            <i class="fas fa-user mr-2"></i> Profil Saya
+          </a>
+          <div class="dropdown-divider no-guest"></div>
+          <a href="#" class="dropdown-item text-danger" onclick="Auth.logout(); return false;">
+            <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+          </a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="dashboard.html" class="brand-link">
+      <i class="fas fa-graduation-cap brand-image ml-3" style="color:#93c5fd;font-size:1.4rem;"></i>
+      <span class="brand-text font-weight-bold ml-2">KRS Akademik</span>
+    </a>
+    <div class="sidebar">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <div class="user-avatar-circle ml-1">
+            <span class="user-avatar-initials">A</span>
+          </div>
+        </div>
+        <div class="info">
+          <a href="profile.html" class="d-block user-display-name"></a>
+          <small class="text-muted user-display-role"></small>
+        </div>
+      </div>
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+          <li class="nav-item no-guest">
+            <a href="dashboard.html" class="nav-link" data-page="dashboard.html">
+              <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="mahasiswa.html" class="nav-link" data-page="mahasiswa.html">
+              <i class="nav-icon fas fa-user-graduate"></i><p>Mahasiswa</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="dosen.html" class="nav-link" data-page="dosen.html">
+              <i class="nav-icon fas fa-chalkboard-teacher"></i><p>Dosen</p>
+            </a>
+          </li>
+          <li class="nav-item no-guest">
+            <a href="profile.html" class="nav-link" data-page="profile.html">
+              <i class="nav-icon fas fa-user-cog"></i><p>Profil Saya</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Mahasiswa</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+              <li class="breadcrumb-item active">Mahasiswa</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <h3 class="card-title mb-0 mr-3">Daftar Mahasiswa</h3>
+              <span class="badge badge-info" id="totalBadge">0</span>
+            </div>
+            <button class="btn btn-primary btn-sm admin-only" id="btnTambah">
+              <i class="fas fa-plus mr-1"></i> Tambah Mahasiswa
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                  <input type="text" id="searchInput" class="form-control" placeholder="Cari nama, NIM, jurusan..." />
+                  <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>NIM</th>
+                    <th>Nama</th>
+                    <th>Jurusan</th>
+                    <th>Semester</th>
+                    <th>Dosen PA</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <tr><td colspan="6" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Memuat...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="paginationWrap" class="d-flex justify-content-between align-items-center mt-2" style="display:none!important;">
+              <small class="text-muted" id="paginationInfo"></small>
+              <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="main-footer">
+    <div class="float-right d-none d-sm-inline text-muted">v1.0.0</div>
+    <strong>© 2025 KRS Akademik</strong> &middot; Universitas Udayana
+  </footer>
+</div>
+
+<!-- Modal Tambah/Edit -->
+<div class="modal fade" id="modalForm" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary">
+        <h5 class="modal-title text-white" id="modalFormTitle">Tambah Mahasiswa</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formMahasiswa">
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>NIM <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fNim" placeholder="2305551001" required />
+              <small class="text-danger d-none" id="fNimErr"></small>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Nama Lengkap <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fNama" placeholder="Nama mahasiswa" required />
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" id="fEmail" placeholder="mahasiswa@email.com" required />
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Jurusan <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fJurusan" placeholder="Teknik Informatika" required />
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Semester <span class="text-danger">*</span></label>
+              <select class="form-control" id="fSemester">
+                ${Array.from({length:14},(_,i)=>`<option value="${i+1}">Semester ${i+1}</option>`).join('')}
+              </select>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Dosen PA</label>
+              <select class="form-control" id="fDosenPa">
+                <option value="">-- Tidak ada --</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-primary" id="btnSimpan">
+          <i class="fas fa-save mr-1"></i> Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detail -->
+<div class="modal fade" id="modalDetail" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-info">
+        <h5 class="modal-title text-white">Detail Mahasiswa</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Hapus -->
+<div class="modal fade" id="modalHapus" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-danger">
+        <h5 class="modal-title text-white">Hapus Mahasiswa</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="hapusMsg">Yakin ingin menghapus mahasiswa ini?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Batal</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnKonfirmasiHapus">
+          <i class="fas fa-trash mr-1"></i> Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/mahasiswa.js"></script>
+</body>
+</html>
